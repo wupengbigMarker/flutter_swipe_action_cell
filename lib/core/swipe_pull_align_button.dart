@@ -240,7 +240,8 @@ class _SwipePullAlignButtonState extends State<SwipePullAlignButton>
       },
       child: Transform.translate(
         offset: Offset((trailing ? 1 : -1) * data.contentWidth + offsetX, 0),
-        child: DecoratedBox(
+        child: Container(
+          margin: EdgeInsets.only(left: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(action.backgroundRadius),
             color: action.color,
@@ -248,7 +249,6 @@ class _SwipePullAlignButtonState extends State<SwipePullAlignButton>
           child: Align(
             alignment: trailing ? Alignment.centerLeft : Alignment.centerRight,
             child: Container(
-              padding: const EdgeInsets.only(left: 16, right: 16),
               alignment: alignment,
               width: offsetX.abs(),
               child: _buildButtonContent(shouldShowNestedActionInfo),
