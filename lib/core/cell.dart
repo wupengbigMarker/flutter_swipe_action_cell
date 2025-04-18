@@ -665,45 +665,6 @@ class SwipeActionCellState extends State<SwipeActionCell>
         //   closeWithAnim();
         // }
         _open(trailing: true);
-
-        // 执行删除
-        debugPrint(" hhh--- ${currentOffset.dx}");
-        if (currentOffset.dx <= -150) {
-          // 执行删除动画
-          HapticFeedback.heavyImpact();
-          SwipeActionStore.getInstance()
-              .bus
-              .fire(PullLastButtonEvent(key: widget.key!, isPullingOut: true));
-
-          CompletionHandler completionHandler = (delete) async {
-            debugPrint("执行完成");
-            if (delete) {
-              SwipeActionStore.getInstance()
-                  .bus
-                  .fire(IgnorePointerEvent(ignore: true));
-              if (widget.firstActionWillCoverAllSpaceOnDeleting) {
-                SwipeActionStore.getInstance()
-                    .bus
-                    .fire(PullLastButtonToCoverCellEvent(key: widget.key!));
-              }
-
-              /// wait animation to complete
-              await deleteWithAnim();
-            } else {
-              lastItemOut = false;
-              _closeNestedAction();
-              debugPrint("关闭4");
-
-              /// wait animation to complete
-              await closeWithAnim();
-            }
-          };
-
-          await closeWithAnim();
-          _closeNestedAction();
-          widget.trailingActions?[0].onTap(completionHandler);
-        }
-
         return;
       } else if (details.velocity.pixelsPerSecond.dx > 0.0) {
         if (!whenTrailingActionShowing && hasLeadingAction) {
