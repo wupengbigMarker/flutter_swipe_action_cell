@@ -645,6 +645,7 @@ class SwipeActionCellState extends State<SwipeActionCell>
       debugPrint("滑动：${whenTrailingActionShowing} , ${widget.trailingActions}");
       if (whenTrailingActionShowing && widget.trailingActions != null) {
         debugPrint("草淡了");
+        widget.trailingActions?[0].onQuickTap();
         await closeWithAnim();
         _closeNestedAction();
         widget.trailingActions?[0].onTap(completionHandler);
@@ -664,7 +665,45 @@ class SwipeActionCellState extends State<SwipeActionCell>
         //   closeWithAnim();
         // }
         _open(trailing: true);
-        debugPrint("return");
+
+        // 执行删除
+        debugPrint(" hhh--- ${currentOffset.dx}");
+        if (currentOffset.dx <= -150) {
+          // 执行删除动画
+          HapticFeedback.heavyImpact();
+          SwipeActionStore.getInstance()
+              .bus
+              .fire(PullLastButtonEvent(key: widget.key!, isPullingOut: true));
+
+          CompletionHandler completionHandler = (delete) async {
+            debugPrint("执行完成");
+            if (delete) {
+              SwipeActionStore.getInstance()
+                  .bus
+                  .fire(IgnorePointerEvent(ignore: true));
+              if (widget.firstActionWillCoverAllSpaceOnDeleting) {
+                SwipeActionStore.getInstance()
+                    .bus
+                    .fire(PullLastButtonToCoverCellEvent(key: widget.key!));
+              }
+
+              /// wait animation to complete
+              await deleteWithAnim();
+            } else {
+              lastItemOut = false;
+              _closeNestedAction();
+              debugPrint("关闭4");
+
+              /// wait animation to complete
+              await closeWithAnim();
+            }
+          };
+
+          await closeWithAnim();
+          _closeNestedAction();
+          widget.trailingActions?[0].onTap(completionHandler);
+        }
+
         return;
       } else if (details.velocity.pixelsPerSecond.dx > 0.0) {
         if (!whenTrailingActionShowing && hasLeadingAction) {
@@ -684,7 +723,7 @@ class SwipeActionCellState extends State<SwipeActionCell>
           closeWithAnim();
         } else {
           debugPrint("what");
-          if (-currentOffset.dx >= MediaQuery.of(context).size.width / 2) {
+          if (-currentOffset.dx >= MediaQuery.of(context).size.width / 3) {
             debugPrint("偏移量超过了屏幕宽度的一半了");
             // 将偏移量设置成最大
             HapticFeedback.heavyImpact();
@@ -715,12 +754,10 @@ class SwipeActionCellState extends State<SwipeActionCell>
                 await closeWithAnim();
               }
             };
-
-            Future.delayed(Duration(milliseconds: 200)).then((val) async {
-              await closeWithAnim();
-              _closeNestedAction();
-              widget.trailingActions?[0].onTap(completionHandler);
-            });
+            widget.trailingActions?[0].onQuickTap();
+            await closeWithAnim();
+            _closeNestedAction();
+            widget.trailingActions?[0].onTap(completionHandler);
           } else {
             _open(trailing: true);
           }
@@ -767,7 +804,6 @@ class SwipeActionCellState extends State<SwipeActionCell>
   void _open({required bool trailing, bool animated = true}) {
     if (animated) {
       _resetAnimValue();
-      debugPrint("hello : ${-maxTrailingPullWidth} ,${currentOffset.dx}");
       animation = Tween<double>(
               begin: currentOffset.dx,
               end: trailing ? -maxTrailingPullWidth : maxLeadingPullWidth)
@@ -1098,6 +1134,8 @@ typedef CompletionHandler = Future<void> Function(bool delete);
 
 typedef SwipeActionOnTapCallback = void Function(CompletionHandler handler);
 
+typedef SwipeActionOnTapQuickCallback = void Function();
+
 class SwipeAction {
   /// title's text Style
   /// default value is :TextStyle(fontSize: 18,color: Colors.white)
@@ -1128,6 +1166,8 @@ class SwipeAction {
   ///
   /// 点击事件回调
   final SwipeActionOnTapCallback onTap;
+
+  final SwipeActionOnTapQuickCallback onQuickTap;
 
   /// 图标
   final Widget? icon;
@@ -1160,6 +1200,7 @@ class SwipeAction {
 
   const SwipeAction({
     required this.onTap,
+    required this.onQuickTap,
     this.title,
     this.style = const TextStyle(fontSize: 18, color: Colors.white),
     this.color = Colors.red,
