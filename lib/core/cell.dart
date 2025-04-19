@@ -862,7 +862,7 @@ class SwipeActionCellState extends State<SwipeActionCell>
           setState(() {});
         });
 
-      controller.duration = Duration(milliseconds: 1000);
+      controller.duration = Duration(milliseconds: 600);
       return controller.forward()
         ..whenCompleteOrCancel(() {
           ignoreActionButtonHit = false;
