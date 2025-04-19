@@ -646,9 +646,9 @@ class SwipeActionCellState extends State<SwipeActionCell>
         widget.trailingActions?[0].onQuickTap();
         await closeWithAnim();
         _closeNestedAction();
-        widget.trailingActions?[0].onTap(completionHandler);
+        widget.trailingActions?[0].onTap(completionHandler, false);
       } else if (whenLeadingActionShowing && widget.leadingActions != null) {
-        widget.leadingActions?[0].onTap(completionHandler);
+        widget.leadingActions?[0].onTap(completionHandler, false);
       }
     } else {
       /// normal dragging update
@@ -694,7 +694,7 @@ class SwipeActionCellState extends State<SwipeActionCell>
 
           await closeWithAnim(isOver: true);
           _closeNestedAction();
-          widget.trailingActions?[0].onTap(completionHandler);
+          widget.trailingActions?[0].onTap(completionHandler, true);
         } else {
           _open(trailing: true);
         }
@@ -754,7 +754,7 @@ class SwipeActionCellState extends State<SwipeActionCell>
 
             await closeWithAnim(isOver: true);
             _closeNestedAction();
-            widget.trailingActions?[0].onTap(completionHandler);
+            widget.trailingActions?[0].onTap(completionHandler, true);
           } else {
             _open(trailing: true);
           }
@@ -1156,7 +1156,8 @@ class SwipeActionCellState extends State<SwipeActionCell>
 ///
 typedef CompletionHandler = Future<void> Function(bool delete);
 
-typedef SwipeActionOnTapCallback = void Function(CompletionHandler handler);
+typedef SwipeActionOnTapCallback = void Function(
+    CompletionHandler handler, bool isScroll);
 
 typedef SwipeActionOnTapQuickCallback = void Function();
 

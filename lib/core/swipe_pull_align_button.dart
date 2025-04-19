@@ -162,6 +162,7 @@ class _SwipePullAlignButtonState extends State<SwipePullAlignButton>
       ..addListener(() {
         if (lockAnim) return;
         offsetX = animation.value;
+        debugPrint("offsetX : ${offsetX}");
         setState(() {});
       });
     await offsetController?.forward();
@@ -204,6 +205,7 @@ class _SwipePullAlignButtonState extends State<SwipePullAlignButton>
         .animate(widthFillActionContentCurve)
       ..addListener(() {
         if (lockAnim) return;
+        debugPrint("hello11 : ${animation.value}");
         offsetX = animation.value;
         alignment = Alignment.lerp(alignment, Alignment.center,
             widthFillActionContentController!.value)!;
@@ -236,7 +238,7 @@ class _SwipePullAlignButtonState extends State<SwipePullAlignButton>
           _animToCoverPullActionContent();
           return;
         }
-        action.onTap.call(handler);
+        action.onTap.call(handler, false);
       },
       child: Transform.translate(
         offset: Offset((trailing ? 1 : -1) * data.contentWidth + offsetX, 0),
